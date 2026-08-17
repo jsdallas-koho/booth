@@ -471,6 +471,28 @@
   .footer-org-name { font-weight: 700; font-size: 15px; color: #fff; }
   footer a { color: rgba(255,255,255,0.92); }
   footer a:hover { color: #fff; }
+  .footer-fine {
+    margin-top: 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ===== バザー全体案内への導線 ===== */
+  .site-back {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 9px 20px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .site-back a {
+    color: var(--primary-dark);
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .site-back a:hover { border-bottom-color: var(--primary-dark); }
+  .site-back a:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 
   /* ===== レスポンシブ ===== */
   @media (max-width: 480px) {
@@ -507,6 +529,14 @@
   </div>
 </header>
 
+<!-- バザー全体のご案内へ -->
+<nav class="site-back" aria-label="関連ページ">
+  <a href="https://jsdallas-koho.github.io/bazaar/" data-track="click_bazaar_site">
+    <span data-ja>← バザー全体のご案内（日時・会場・提供品ご寄付）</span>
+    <span data-en>← Bazaar information (date, venue, donations)</span>
+  </a>
+</nav>
+
 <!-- ヒーローセクション -->
 <section class="hero" aria-labelledby="hero-heading">
   <div class="hero-inner">
@@ -527,7 +557,7 @@
     </div>
 
     <div class="cta-group">
-      <a class="btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdnOiPi43gkipIMl8W2dfFo682I26mYpWnweWlUT03mAoD0xw/viewform" target="_blank" rel="noopener noreferrer">
+      <a class="btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdnOiPi43gkipIMl8W2dfFo682I26mYpWnweWlUT03mAoD0xw/viewform" target="_blank" rel="noopener noreferrer" data-track="click_apply_form">
         <span data-ja>今すぐ申し込む →</span>
         <span data-en>Apply Now →</span>
       </a>
@@ -693,7 +723,7 @@
       <p data-ja>定員になり次第、締め切りとなります。早期割引は9月13日（日）までです。</p>
       <p data-en>Spots are limited and close once full. Early-bird pricing ends Sunday, September 13.</p>
       <div class="final-cta-inner">
-        <a class="btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdnOiPi43gkipIMl8W2dfFo682I26mYpWnweWlUT03mAoD0xw/viewform" target="_blank" rel="noopener noreferrer">
+        <a class="btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdnOiPi43gkipIMl8W2dfFo682I26mYpWnweWlUT03mAoD0xw/viewform" target="_blank" rel="noopener noreferrer" data-track="click_apply_form">
           <span data-ja>お申し込みフォームを開く →</span>
           <span data-en>Open the Application Form →</span>
         </a>
@@ -719,7 +749,7 @@
       </h2>
       <p data-ja>ご質問やご不明な点がございましたら、バザー担当者までご連絡ください。</p>
       <p data-en>If you have any questions, please contact the bazaar coordinator.</p>
-      <p><a href="mailto:dja_bazaar_kojin@jsdallas.org">dja_bazaar_kojin@jsdallas.org</a></p>
+      <p><a href="mailto:dja_bazaar_kojin@jsdallas.org" data-track="click_contact_email">dja_bazaar_kojin@jsdallas.org</a></p>
     </div>
   </section>
 
@@ -735,11 +765,59 @@
       <span data-en>About the Dallas Japanese Association</span>
     </a>
   </p>
+  <p>
+    <a href="https://jsdallas-koho.github.io/bazaar/" data-track="click_bazaar_site">
+      <span data-ja>2026年 ダラス日本人会バザー 特設ページ</span>
+      <span data-en>2026 DJA Bazaar — main information page</span>
+    </a>
+  </p>
   <p id="copyright">&copy; 2026 Dallas Japanese Association. All rights reserved.</p>
+  <p class="footer-fine" id="analytics-notice" hidden>
+    <span data-ja>このサイトはアクセス解析を利用しています。個人を特定する情報は取得していません。</span>
+    <span data-en>This site uses web analytics. No personally identifying information is collected.</span>
+  </p>
 </footer>
 
 <script>
 (function() {
+  /* ===== アクセス解析 =====
+     測定IDを設定すると解析タグを読み込み、フッターに利用告知を表示する。
+     空のままの場合は外部リクエストを一切行わない。 */
+  var GA_MEASUREMENT_ID = '';
+
+  function loadAnalytics(id) {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function() { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', id);
+
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
+    document.head.appendChild(s);
+
+    var notice = document.getElementById('analytics-notice');
+    if (notice) notice.hidden = false;
+  }
+
+  if (GA_MEASUREMENT_ID) loadAnalytics(GA_MEASUREMENT_ID);
+
+  /* data-track 属性を持つリンクのクリックを計測する。
+     同一オリジン内のリンクにUTMは付けず、イベントとして記録する。 */
+  function track(name, detail) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', name, detail || {});
+    }
+  }
+  document.querySelectorAll('[data-track]').forEach(function(link) {
+    link.addEventListener('click', function() {
+      track(link.getAttribute('data-track'), {
+        link_url: link.href,
+        link_text: (link.textContent || '').trim().slice(0, 80)
+      });
+    });
+  });
+
   var el = document.getElementById('copyright');
   if (el) {
     el.textContent = '© 2026 Dallas Japanese Association. All rights reserved.';
